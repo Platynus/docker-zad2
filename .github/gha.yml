@@ -1,0 +1,90 @@
+name: GHAction zadanie 2  
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+    - 'v*'
+
+jobs:
+  ci_step:
+    name: Build, test, and push Docker image to GitHub Container Registry (ghcr.io)
+    runs-on: ubuntu-latest
+      
+    steps:
+      - 
+        name: Check out the source_repo
+        uses: actions/checkout@v4
+      
+      -
+        name: Docker metadata definitions
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          flavor: latest=false
+          tags: |
+            type=sha,priority=100,prefix=sha-,format=short
+            type=semver,priority=200,pattern={{version}}   
+
+      - 
+        name: QEMU set-up
+        uses: docker/setup-qemu-action@v3
+
+      - 
+        name: Buildx set-up
+        uses: docker/setup-buildx-action@v3
+
+      - 
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - 
+        name: Build Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache 
+          cache-to: |
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache  
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - 
+        name: Scan Docker image for vulnerabilities
+        uses: docker/scout-action@v1
+        id: scout
+        with:
+          image: ${{ steps.build.outputs.image }}
+
+      - 
+        name: Fail if critical or high vulnerabilities are found
+        run: |
+          critical_count=$(jq '.critical | length' ${{ steps.scout.outputs.report }})
+          high_count=$(jq '.high | length' ${{ steps.scout.outputs.report }})
+          if [ "$critical_count" -gt 0 ] || [ "$high_count" -gt 0 ]; then
+            echo "Critical or high vulnerabilities found."
+            exit 1
+          fi
+
+      - 
+        name: Push Docker image to GitHub Container Registry
+        if: success()
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: |
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache 
+          cache-to: |
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache 
