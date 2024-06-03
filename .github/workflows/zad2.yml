@@ -10,6 +10,10 @@ jobs:
   ci_step:
     name: Build, test, and push Docker image to GitHub Container Registry (ghcr.io)
     runs-on: ubuntu-latest
+    
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      REPOSITORY: docker-zad2
 
     steps:
       -
