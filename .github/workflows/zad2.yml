@@ -51,6 +51,10 @@ jobs:
           password: ${{ secrets.GHCR_PAT }}
 
       -
+        name: Debugging - List Docker images
+        run: docker images
+
+      -
         name: Build Docker image
         id: build
         uses: docker/build-push-action@v5
@@ -59,8 +63,8 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: false
-          cache-from: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
-          cache-to: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+          cache-from: type=registry,ref=ghcr.io/${{ vars.DOCKERHUB_USERNAME }}/${{ vars.REPOSITORY }}:cache
+          cache-to: type=registry,ref=ghcr.io/${{ vars.DOCKERHUB_USERNAME }}/${{ vars.REPOSITORY }}:cache
           tags: ${{ steps.meta.outputs.tags }}
 
       -
@@ -91,5 +95,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
-          cache-to: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+          cache-from: type=registry,ref=ghcr.io/${{ vars.DOCKERHUB_USERNAME }}/${{ vars.REPOSITORY }}:cache
+          cache-to: type=registry,ref=ghcr.io/${{ vars.DOCKERHUB_USERNAME }}/${{ vars.REPOSITORY }}:cache
