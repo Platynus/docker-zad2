@@ -52,9 +52,9 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: false
           cache-from: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache
           cache-to: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache
           tags: ${{ steps.meta.outputs.tags }}
 
       -
@@ -86,6 +86,6 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache
           cache-to: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+            type=registry,ref=ghcr.io/${{ github.repository }}:cache
