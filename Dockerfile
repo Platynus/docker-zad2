@@ -33,7 +33,7 @@ LABEL maintainer="Patryk Pawelec"
 EXPOSE 5000
 
 # Definiowanie polecenia startowego
-CMD ["python", "src/main.py"]
+CMD ["python", "main.py"]
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD wget --no-verbose --tries=1 --spider http://localhost:5000/ || exit 1
