@@ -59,10 +59,8 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: false
-          cache-from: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
-          cache-to: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+          cache-from: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+          cache-to: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
           tags: ${{ steps.meta.outputs.tags }}
 
       -
@@ -93,7 +91,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          cache-from: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
-          cache-to: |
-            type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+          cache-from: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
+          cache-to: type=registry,ref=ghcr.io/${{ vars.REPOSITORY }}:cache
