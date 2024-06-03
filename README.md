@@ -1,4 +1,4 @@
-![image](https://github.com/Platynus/docker-zad2/assets/56522713/b577313b-2c5d-4cb8-989a-89fa4a50336b)# Sprawozdanie z zadania 2
+# Sprawozdanie z zadania 2
 
 ### Wykonał Patryk Pawelec s97696
 
