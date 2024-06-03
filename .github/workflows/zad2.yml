@@ -4,24 +4,22 @@ on:
   workflow_dispatch:
   push:
     tags:
-    - 'v*'
+      - 'v*'
 
 jobs:
   ci_step:
     name: Build, test, and push Docker image to GitHub Container Registry (ghcr.io)
     runs-on: ubuntu-latest
-    
+
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       REPOSITORY: docker-zad2
 
     steps:
-      -
-        name: Check out the source_repo
+      - name: Check out the source_repo
         uses: actions/checkout@v4
 
-      -
-        name: Docker metadata definitions
+      - name: Docker metadata definitions
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -31,35 +29,29 @@ jobs:
             type=sha,priority=100,prefix=sha-,format=short
             type=semver,priority=200,pattern={{version}}
 
-      -
-        name: QEMU set-up
+      - name: QEMU set-up
         uses: docker/setup-qemu-action@v3
 
-      -
-        name: Buildx set-up
+      - name: Buildx set-up
         uses: docker/setup-buildx-action@v3
 
-      -
-        name: Login to Docker Hub
+      - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      -
-        name: Login to GitHub Container Registry
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      -
-        name: Debugging - List Docker images
+      - name: Debugging - List Docker images
         run: docker images
 
-      -
-        name: Build Docker image
+      - name: Build Docker image
         id: build
         uses: docker/build-push-action@v5
         with:
@@ -71,16 +63,14 @@ jobs:
           cache-to: type=registry,ref=ghcr.io/${{ vars.DOCKERHUB_USERNAME }}/${{ vars.REPOSITORY }}:cache
           tags: ${{ steps.meta.outputs.tags }}
 
-      -
-        name: Scan Docker image for vulnerabilities
+      - name: Scan Docker image for vulnerabilities
         uses: docker/scout-action@v1
         id: scout
         with:
           command: scan
           image: ${{ steps.build.outputs.image }}
 
-      -
-        name: Fail if critical or high vulnerabilities are found
+      - name: Fail if critical or high vulnerabilities are found
         run: |
           critical_count=$(jq '.critical | length' ${{ steps.scout.outputs.report }})
           high_count=$(jq '.high | length' ${{ steps.scout.outputs.report }})
@@ -89,8 +79,7 @@ jobs:
             exit 1
           fi
 
-      -
-        name: Push Docker image to GitHub Container Registry
+      - name: Push Docker image to GitHub Container Registry
         if: success()
         uses: docker/build-push-action@v5
         with:
